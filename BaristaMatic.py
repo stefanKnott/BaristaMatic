@@ -25,17 +25,29 @@ def handleMenu():
 	elif int(line) == 1:
 		makeDrink("Coffee")
 	elif int(line) == 2:
-		makeDrink("DecafCoffee")
-	elif int(line) == 3:
-		makeDrink("CaffeLatte")
-	elif int(line) == 4:
-		makeDrink("CaffeAmericano")
-	elif int(line) == 5:
-		makeDrink("CaffeMocha")
-	elif int(line) == 6:
 		makeDrink("Cappuccino")
+	elif int(line) == 3:
+		makeDrink("DecafCoffee")
+	elif int(line) == 4:
+		makeDrink("CaffeLatte")
+	elif int(line) == 5:
+		makeDrink("CaffeAmericano")
+	elif int(line) == 6:
+		makeDrink("CaffeMocha")
 	menu()
 	#return to Menu
+
+def getDrinkInfo(iD, drinkName, recipe):
+	drinkCost = 0
+	for ingrName, units in recipe.iteritems():
+		drinkCost += ingredients[ingrName]["cost"] *  units
+		if ingredients[ingrName]["stock"] <= 0:
+			#missing ingredients..
+			return str(iD) + ", " + drinkName + ", $" + str(drinkCost) + ",false"
+				
+	#have ingredients..
+	return str((str(iD) + ", " + drinkName + ", $" + str(drinkCost), ",true")).replace("(", "").replace("'", "").replace(")", "")
+
 
 def menu():
 	print "Inventory"
@@ -44,18 +56,13 @@ def menu():
 			if attr == "stock":
 				print name, ",", num
 	print "Menu: "
-	i = 1
 	#could make optionMenu dict for dynamic number selection
 
+	iD = 1
 	for drinkName, recipe in drinkRecipes.iteritems():
-		drinkCost = 0
-		available = "true"
-		for ingrName, units in recipe.iteritems():
-			if units == 0:
-				available = "false"
-			drinkCost += ingredients[ingrName]["cost"] *  units
-		print i,",",drinkName, ", $", drinkCost, ",", available
-		i += 1
+		print getDrinkInfo(iD, drinkName, recipe)
+		iD += 1
+
 	handleMenu()
 
 
@@ -77,5 +84,4 @@ if __name__ == '__main__':
 				"CaffeMocha" : {"espresso" : 1, "cocoa" : 1, "steamMilk" : 1, "whippedCream" : 1},
 				"Cappuccino" : {"espresso" : 2, "steamMilk" : 1, "foamMilk" : 1}}
 
-	#print ingredients, drinkRecipes
 	menu()
