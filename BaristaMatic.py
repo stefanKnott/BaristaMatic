@@ -3,31 +3,30 @@
 and drink selection accordingly
 '''
 
-import fileinput, collections
+import collections
+from decimal import *
 
 def makeDrink(drinkName, drinkRecipes, ingredients):
 	recipe = drinkRecipes[drinkName]
 	
 	#Look
-	for ingrName, units in recipe.items():
-		if ingredients[ingrName]["stock"] < units:
-			print "Out of stock: ", drinkName
+	for ingr, units in recipe.items():
+		if ingredients[ingr]["stock"] < units:
+			print "\nOut of stock: ", drinkName, "\n"
 			return 
-
 	#Make
-	print "Dispensing: ", drinkName
-	for ingrName, units in recipe.items():
-		ingredients[ingrName]["stock"] -= units
+	print "\nDispensing: ", drinkName, "\n"
+	for ingr, units in recipe.items():
+		ingredients[ingr]["stock"] -= units
 
 def restock():
-	for name, info in ingredients.items():
+	for _, info in ingredients.items():
 		for attr, num in info.items():
 			if attr == "stock" and num < 10:
 				info[attr] = 10
 
 def handleMenu(drinkRecipes, ingredients):
 	line = raw_input()
-
 	if line == 'q' or line == 'Q':
 		exit(1)
 	elif line == "r" or line == "R":
@@ -45,28 +44,30 @@ def handleMenu(drinkRecipes, ingredients):
 	elif int(line) == 6:
 		makeDrink("Decaf Coffee", drinkRecipes, ingredients)
 	else:
-		print "Invalid selection: ", line
+		print "\nInvalid selection: ", line, "\n"
 
 	baristaMatic(drinkRecipes, ingredients)
 
 def getDrinkInfo(iD, drinkName, recipe):
 	drinkCost = 0
-	for ingrName, units in recipe.items():
-		drinkCost += ingredients[ingrName]["cost"] *  units
-		if ingredients[ingrName]["stock"] <= 0:
-			#missing ingredients..
-			return str(iD) + "," + drinkName + ",$" + str(drinkCost) + ",false"
-				
-	#have ingredients..odd how return string is formatted differently here than in for:if (hence the replace() chaining):
-	return str((str(iD) + "," + drinkName + ",$" + str(drinkCost), ",true")).replace("(", "").replace("'", "").replace(")", "")
+	ret = str(iD) + "," + drinkName + ",$"
+
+	inStock = ",true"
+	for ingr, units in recipe.items():
+		drinkCost += ingredients[ingr]["cost"] *  units
+		if ingredients[ingr]["stock"] < units:
+			inStock = ",false"
+			
+	return ret + str("%0.2f" % drinkCost) + inStock						
 
 
 def printInventory(ingredients):
 	print "Inventory:"
-	for name, info in ingredients.items():
+	for ingr, info in ingredients.items():
 		for attr, num in info.items():
 			if attr == "stock":
-				print name, ",", num
+				print str(ingr + ","+ str(num))
+	print "\n"
 
 def printMenu(drinkRecipes):
 	print "Menu:"
@@ -85,20 +86,20 @@ if __name__ == '__main__':
 	ingredients = collections.OrderedDict()
 	drinkRecipes = collections.OrderedDict()
 
-	ingredients["Cocoa"] = {"cost" : 1.10, "stock" : 10}
-	ingredients["Coffee"] = {"cost" : 0.85, "stock" : 10}
-	ingredients["Cream"] = {"cost" : 0.25, "stock" : 10}
-	ingredients["Decaf Coffee"] = {"cost" : 0.85, "stock" : 10}
-	ingredients["Espresso"] = {"cost" : 1.10, "stock" : 10}
-	ingredients["Foamed Milk"] = {"cost" : .35, "stock" : 10}
-	ingredients["Steam Milk"] = {"cost" : 0.4, "stock" : 10}
-	ingredients["Sugar"] = {"cost" : 0.20, "stock" : 10}
-	ingredients["Whipped Cream"] = {"cost" : 1.00, "stock" : 10}
+	ingredients["Cocoa"] = {"cost" : Decimal(1.00), "stock" : 10}
+	ingredients["Coffee"] = {"cost" : Decimal(0.85), "stock" : 10}
+	ingredients["Cream"] = {"cost" : Decimal(0.25), "stock" : 10}
+	ingredients["Decaf Coffee"] = {"cost" : Decimal(0.85), "stock" : 10}
+	ingredients["Espresso"] = {"cost" : Decimal(1.10), "stock" : 10}
+	ingredients["Foamed Milk"] = {"cost" : Decimal(.35), "stock" : 10}
+	ingredients["Steamed Milk"] = {"cost" : Decimal(0.40), "stock" : 10}
+	ingredients["Sugar"] = {"cost" : Decimal(0.20), "stock" : 10}
+	ingredients["Whipped Cream"] = {"cost" : Decimal(1.00), "stock" : 10}
 
 	drinkRecipes["Caffe Americano"] = {"Espresso" : 3}
-	drinkRecipes["Caffe Latte"] = {"Espresso" : 2, "Cocoa" : 1, "Steam Milk" : 1, "Whipped Cream" : 1}
-	drinkRecipes["Caffe Mocha"] = {"Espresso" : 2, "Steam Milk" : 1}
-	drinkRecipes["Cappuccino"] = {"Espresso" : 2, "Steam Milk" : 1, "Foamed Milk" : 1}
+	drinkRecipes["Caffe Latte"] = {"Espresso" : 2, "Steamed Milk" : 1}
+	drinkRecipes["Caffe Mocha"] = {"Espresso" : 1, "Cocoa" : 1, "Steamed Milk" : 1, "Whipped Cream" : 1}
+	drinkRecipes["Cappuccino"] = {"Espresso" : 2, "Steamed Milk" : 1, "Foamed Milk" : 1}
 	drinkRecipes["Coffee"] = {"Coffee" : 3, "Sugar" : 1, "Cream" : 1}
 	drinkRecipes["Decaf Coffee"] = {"Decaf Coffee" : 3, "Sugar" : 1, "Cream" : 1}
 
