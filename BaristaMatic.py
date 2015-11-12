@@ -1,41 +1,41 @@
-from collections import defaultdict
 import fileinput
 
-global ingredients
-global drinkRecipes
-
-def makeDrink(drinkName):
-	print "Dispensing: ", drinkName
+def makeDrink(drinkName, drinkRecipes, ingredients):
 	recipe = drinkRecipes[drinkName]
 	for ingrName, units in recipe.iteritems():
-		ingredients[ingrName]["stock"] -= 1
+		if ingredients[ingrName]["stock"] >= units:
+			ingredients[ingrName]["stock"] -= units
+		else:
+			print "Not enough ingredients to make ", drinkName, " choose another"
+			return 
+
+	print "Dispensing: ", drinkName
 
 def restock():
-	for ingr, info in ingredients.iteritems():
+	for name, info in ingredients.iteritems():
 		for attr, num in info.iteritems():
 			if attr == "stock" and num < 10:
 				info[attr] = 10
 
-def handleMenu():
+def handleMenu(drinkRecipes, ingredients):
 	line = raw_input()
 	if line == 'q' or line == 'Q':
 		exit(1)
 	elif line == "r" or line == "R":
 		restock()
 	elif int(line) == 1:
-		makeDrink("Coffee")
+		makeDrink("Coffee", drinkRecipes, ingredients)
 	elif int(line) == 2:
-		makeDrink("Cappuccino")
+		makeDrink("Cappuccino", drinkRecipes, ingredients)
 	elif int(line) == 3:
-		makeDrink("DecafCoffee")
+		makeDrink("DecafCoffee", drinkRecipes, ingredients)
 	elif int(line) == 4:
-		makeDrink("CaffeLatte")
+		makeDrink("CaffeLatte", drinkRecipes, ingredients)
 	elif int(line) == 5:
-		makeDrink("CaffeAmericano")
+		makeDrink("CaffeAmericano", drinkRecipes, ingredients)
 	elif int(line) == 6:
-		makeDrink("CaffeMocha")
-	menu()
-	#return to Menu
+		makeDrink("CaffeMocha", drinkRecipes, ingredients)
+	baristaMatic(drinkRecipes, ingredients)
 
 def getDrinkInfo(iD, drinkName, recipe):
 	drinkCost = 0
@@ -49,22 +49,25 @@ def getDrinkInfo(iD, drinkName, recipe):
 	return str((str(iD) + ", " + drinkName + ", $" + str(drinkCost), ",true")).replace("(", "").replace("'", "").replace(")", "")
 
 
-def menu():
-	print "Inventory"
+def printInventory(ingredients):
+	print "Inventory:"
 	for name, info in ingredients.iteritems():
 		for attr, num in info.iteritems():
 			if attr == "stock":
 				print name, ",", num
-	print "Menu: "
-	#could make optionMenu dict for dynamic number selection
 
+def printMenu(drinkRecipes):
+	print "Menu:"
+	#could make optionMenu dict for dynamic number selection
 	iD = 1
 	for drinkName, recipe in drinkRecipes.iteritems():
 		print getDrinkInfo(iD, drinkName, recipe)
 		iD += 1
 
-	handleMenu()
-
+def baristaMatic(drinkRecipes, ingredients):
+	printInventory(ingredients)
+	printMenu(drinkRecipes)
+	handleMenu(drinkRecipes, ingredients)
 
 if __name__ == '__main__':
 	ingredients = {"coffee" : {"cost" : 0.85, "stock" : 10}, 
@@ -84,4 +87,4 @@ if __name__ == '__main__':
 				"CaffeMocha" : {"espresso" : 1, "cocoa" : 1, "steamMilk" : 1, "whippedCream" : 1},
 				"Cappuccino" : {"espresso" : 2, "steamMilk" : 1, "foamMilk" : 1}}
 
-	menu()
+	baristaMatic(drinkRecipes, ingredients)
