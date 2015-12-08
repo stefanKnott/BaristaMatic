@@ -46,8 +46,6 @@ def handleMenu(drinkRecipes, ingredients):
 	else:
 		print "\nInvalid selection: ", line, "\n"
 
-	baristaMatic(drinkRecipes, ingredients)
-
 def getDrinkInfo(iD, drinkName, recipe):
 	drinkCost = 0
 	ret = str(iD) + "," + drinkName + ",$"
@@ -78,9 +76,10 @@ def printMenu(drinkRecipes):
 		iD += 1
 
 def baristaMatic(drinkRecipes, ingredients):
-	printInventory(ingredients)
-	printMenu(drinkRecipes)
-	handleMenu(drinkRecipes, ingredients)
+	while True:
+		printInventory(ingredients)
+		printMenu(drinkRecipes)
+		handleMenu(drinkRecipes, ingredients)
 
 if __name__ == '__main__':
 	ingredients = collections.OrderedDict()
